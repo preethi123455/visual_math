@@ -9,16 +9,12 @@ app.use(express.json());
 app.use(cors());
 
 // -------------------------
-// CONNECT TO MONGODB ATLAS
+// CONNECT TO MONGODB (Railway + Local Ready)
 // -------------------------
 mongoose
-  .connect(
-    "mongodb+srv://preethiusha007_db_user:ZmpaqAYxhpNtVfgv@cluster0.5zvyv1w.mongodb.net/educonnect?retryWrites=true&w=majority",
-    {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    }
-  )
+  .connect(process.env.MONGO_URI, {
+    dbName: "educonnect",
+  })
   .then(() => console.log("✅ MongoDB Connected Successfully"))
   .catch((err) => console.log("❌ MongoDB Connection Error:", err));
 
@@ -89,7 +85,7 @@ app.get("*", (req, res) => {
 });
 
 // -------------------------
-// START SERVER (Railway Compatible)
+// START SERVER
 // -------------------------
 const PORT = process.env.PORT || 11000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
