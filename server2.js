@@ -1,9 +1,9 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const path = require("path");
 
 const app = express();
-const PORT = 11000;
 
 // Middleware
 app.use(cors());
@@ -61,12 +61,20 @@ app.post("/register-student", async (req, res) => {
   }
 });
 
-// Test Route
-app.get("/", (req, res) => {
-  res.send("🚀 Server is running!");
+// --------------------------------------
+// ⭐ Serve React Frontend Build
+// --------------------------------------
+app.use(express.static(path.join(__dirname, "build")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "build", "index.html"));
 });
 
-// Start Server
+// --------------------------------------
+// ⭐ Start Server (Railway Compatible)
+// --------------------------------------
+const PORT = process.env.PORT || 11000;
+
 app.listen(PORT, () =>
-  console.log(`🚀 Server running on http://localhost:${PORT}`)
+  console.log(`🚀 Server running on port: ${PORT}`)
 );

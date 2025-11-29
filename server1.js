@@ -2,9 +2,9 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const multer = require("multer");
+const path = require("path");
 
 const app = express();
-const PORT = 10000;
 
 // Middleware
 app.use(express.json());
@@ -37,7 +37,7 @@ const mentorSchema = new mongoose.Schema({
 const Mentor = mongoose.model("Mentor", mentorSchema);
 
 // --------------------------------
-// Multer Storage (Memory, No Upload Folder)
+// Multer Storage (Memory)
 // --------------------------------
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
@@ -56,7 +56,6 @@ app.post(
           .json({ success: false, message: "Certificate file is required" });
       }
 
-      // Convert to Base64
       const certificateBase64 = req.file.buffer.toString("base64");
 
       const newMentor = new Mentor({
@@ -70,6 +69,7 @@ app.post(
       });
 
       await newMentor.save();
+
       res.json({
         success: true,
         message: "Mentor verification submitted successfully!",
@@ -84,8 +84,19 @@ app.post(
 );
 
 // --------------------------------
-// Start Server
+// ⭐ Serve React Frontend Build (IMPORTANT FOR RAILWAY)
 // --------------------------------
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+app.use(express.static(path.join(__dirname, "build")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "build", "index.html"));
 });
+
+// --------------------------------
+// ⭐ Start Server (Railway Compatible)
+// --------------------------------
+const PORT = process.env.PORT || 11000;
+
+app.listen(PORT, () =>
+  console.log(`🚀 Server running perfectly on port: ${PORT}`)
+);

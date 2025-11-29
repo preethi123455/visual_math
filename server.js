@@ -1,25 +1,26 @@
-// server.js
 const express = require("express");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const cors = require("cors");
+const path = require("path");
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
 // -------------------------
-// ✅ CONNECT TO MONGODB ATLAS
+// CONNECT TO MONGODB ATLAS
 // -------------------------
-mongoose.connect(
-  "mongodb+srv://preethiusha007_db_user:ZmpaqAYxhpNtVfgv@cluster0.5zvyv1w.mongodb.net/educonnect?retryWrites=true&w=majority",
-  {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  }
-)
-.then(() => console.log("✅ MongoDB Connected Successfully"))
-.catch((err) => console.log("❌ MongoDB Connection Error:", err));
+mongoose
+  .connect(
+    "mongodb+srv://preethiusha007_db_user:ZmpaqAYxhpNtVfgv@cluster0.5zvyv1w.mongodb.net/educonnect?retryWrites=true&w=majority",
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    }
+  )
+  .then(() => console.log("✅ MongoDB Connected Successfully"))
+  .catch((err) => console.log("❌ MongoDB Connection Error:", err));
 
 // -------------------------
 // USER SCHEMA
@@ -79,6 +80,16 @@ app.post("/login", async (req, res) => {
 });
 
 // -------------------------
-// START SERVER
+// SERVE REACT FRONTEND
 // -------------------------
-app.listen(5000, () => console.log("🚀 Server running on port 5000"));
+app.use(express.static(path.join(__dirname, "build")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "build", "index.html"));
+});
+
+// -------------------------
+// START SERVER (Railway Compatible)
+// -------------------------
+const PORT = process.env.PORT || 11000;
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
