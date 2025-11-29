@@ -9,17 +9,23 @@ const PORT = 11000;
 app.use(cors());
 app.use(express.json());
 
-// Connect to MongoDB
-mongoose.connect("mongodb://127.0.0.1:27017/studentDB", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+// --------------------------------------
+// ✅ Connect to MongoDB Atlas
+// --------------------------------------
+mongoose
+  .connect(
+    "mongodb+srv://preethiusha007_db_user:ZmpaqAYxhpNtVfgv@cluster0.5zvyv1w.mongodb.net/studentDB?retryWrites=true&w=majority",
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    }
+  )
+  .then(() => console.log("✅ Connected to MongoDB Atlas!"))
+  .catch((err) => console.error("❌ MongoDB Atlas Connection Error:", err));
 
-const db = mongoose.connection;
-db.on("error", console.error.bind(console, "❌ MongoDB connection error:"));
-db.once("open", () => console.log("✅ Connected to MongoDB!"));
-
-// Define Student Schema
+// --------------------------------------
+// Student Schema
+// --------------------------------------
 const studentSchema = new mongoose.Schema({
   fullName: String,
   email: String,
@@ -32,16 +38,26 @@ const studentSchema = new mongoose.Schema({
 
 const Student = mongoose.model("Student", studentSchema);
 
-// API Endpoint for Student Registration
+// --------------------------------------
+// Student Registration API
+// --------------------------------------
 app.post("/register-student", async (req, res) => {
   try {
     console.log("📩 Received Data:", req.body);
+
     const newStudent = new Student(req.body);
     await newStudent.save();
-    res.status(201).json({ success: true, message: "✅ Student registered successfully!" });
+
+    res.status(201).json({
+      success: true,
+      message: "✅ Student registered successfully!",
+    });
   } catch (error) {
     console.error("❌ Registration Error:", error);
-    res.status(500).json({ success: false, message: "❌ Failed to register student." });
+    res.status(500).json({
+      success: false,
+      message: "❌ Failed to register student.",
+    });
   }
 });
 
@@ -51,4 +67,6 @@ app.get("/", (req, res) => {
 });
 
 // Start Server
-app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+app.listen(PORT, () =>
+  console.log(`🚀 Server running on http://localhost:${PORT}`)
+);

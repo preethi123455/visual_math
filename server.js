@@ -8,38 +8,77 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-mongoose.connect("mongodb://127.0.0.1:27017/educonnect", { useNewUrlParser: true, useUnifiedTopology: true });
+// -------------------------
+// ✅ CONNECT TO MONGODB ATLAS
+// -------------------------
+mongoose.connect(
+  "mongodb+srv://preethiusha007_db_user:ZmpaqAYxhpNtVfgv@cluster0.5zvyv1w.mongodb.net/educonnect?retryWrites=true&w=majority",
+  {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  }
+)
+.then(() => console.log("✅ MongoDB Connected Successfully"))
+.catch((err) => console.log("❌ MongoDB Connection Error:", err));
 
+// -------------------------
+// USER SCHEMA
+// -------------------------
 const userSchema = new mongoose.Schema({
   name: String,
   email: { type: String, unique: true },
   phone: String,
-  password: String
+  password: String,
 });
 
 const User = mongoose.model("User", userSchema);
 
+// -------------------------
+// SIGNUP API
+// -------------------------
 app.post("/signup", async (req, res) => {
   try {
     const { name, email, phone, password } = req.body;
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "User already exists!" });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = new User({ name, email, phone, password: hashedPassword });
+
     await user.save();
+
     res.status(201).json({ message: "Signup successful!" });
   } catch (err) {
-    res.status(400).json({ message: "User already exists!" });
+    res.status(500).json({ message: "Server error", error: err });
   }
 });
 
+// -------------------------
+// LOGIN API
+// -------------------------
 app.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-  const user = await User.findOne({ email });
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
 
-  if (user && (await bcrypt.compare(password, user.password))) {
-    res.status(200).json({ message: "Login successful!" });
-  } else {
-    res.status(401).json({ message: "Invalid credentials!" });
+    if (!user)
+      return res.status(401).json({ message: "Invalid email or password!" });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch)
+      return res.status(401).json({ message: "Invalid email or password!" });
+
+    res.status(200).json({ message: "Login successful!", user });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err });
   }
 });
 
-app.listen(5000, () => console.log("Server running on port 5000"));
+// -------------------------
+// START SERVER
+// -------------------------
+app.listen(5000, () => console.log("🚀 Server running on port 5000"));
