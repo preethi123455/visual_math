@@ -29,6 +29,7 @@
     "react-speech-recognition": "^4.0.0",
     "reactflow": "^11.11.4",
     "recharts": "^2.15.2",
+    "serve": "^14.2.5",
     "swiper": "^11.2.5",
     "tesseract.js": "^6.0.1",
     "three": "^0.175.0",
