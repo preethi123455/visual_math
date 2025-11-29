@@ -37,7 +37,7 @@
   },
   "scripts": {
     "start": "node server.js",
-    "build": "CI=false react-scripts build",
+    "build": "react-scripts build",
     "heroku-postbuild": "npm run build"
   },
   "eslintConfig": {
